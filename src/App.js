@@ -9,36 +9,41 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-function findWinner(board) {
-  const winningPatterns = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6],
+function calculateWinner(board) {
+  const lines = [
+    [0, 1, 2], // Horizontal rows
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6], // Vertical columns
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8], // Diagonal lines
+    [2, 4, 6],
   ];
-
-  for (let [a, b, c] of winningPatterns) {
+  
+  // Check each line for a winner
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
     if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      return board[a];
+      return board[a]; // Return the winning symbol ('X' or 'O')
     }
   }
-  return null;
+  return null; // No winner
 }
 
 export default function Board() {
   const [isXTurn, setIsXTurn] = useState(true);
   const [board, setBoard] = useState(Array(9).fill(null));
 
-  function handleClick(index) {
-    if (board[index] || findWinner(board)) return;
-
-    const newBoard = board.slice();
-    newBoard[index] = isXTurn ? "X" : "O";
-
-    setBoard(newBoard);
-    setIsXTurn(!isXTurn);
+  function handleClick(i) {
+    if (board[i] || calculateWinner(board)) return; // If the square is already filled or there's a winner
+    const nextBoard = board.slice(); // Make a copy of the board
+    nextBoard[i] = isXTurn ? "X" : "O"; // Set the clicked square
+    setBoard(nextBoard);
+    setIsXTurn(!isXTurn); // Switch turn
   }
 
-  const winner = findWinner(board);
+  const winner = calculateWinner(board);
   let status;
   if (winner) {
     status = "Winner: " + winner;
