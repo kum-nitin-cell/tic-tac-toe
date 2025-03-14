@@ -1,22 +1,22 @@
 import "./App.css";
 import { useState } from "react";
 
-function Square({ value, onClick }) {
+function Square({ value, onSquareClick }) {
   return (
-    <button className="square" onClick={onClick}>
+    <button className="square" onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
-function calculateWinner(board) {
-  const winPatterns = [
+function findWinner(board) {
+  const winningPatterns = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8], 
     [0, 3, 6], [1, 4, 7], [2, 5, 8], 
     [0, 4, 8], [2, 4, 6]
   ];
 
-  for (let [a, b, c] of winPatterns) {
+  for (let [a, b, c] of winningPatterns) {
     if (board[a] && board[a] === board[b] && board[a] === board[c]) {
       return board[a];
     }
@@ -25,42 +25,44 @@ function calculateWinner(board) {
 }
 
 export default function Board() {
+  const [isXTurn, setIsXTurn] = useState(true);
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [isXNext, setIsXNext] = useState(true);
 
   function handleClick(index) {
-    if (board[index] || calculateWinner(board)) return;
+    if (board[index] || findWinner(board)) return;
 
-    const newBoard = [...board];
-    newBoard[index] = isXNext ? "X" : "O";
+    const newBoard = board.slice();
+    newBoard[index] = isXTurn ? "X" : "O";
 
     setBoard(newBoard);
-    setIsXNext(!isXNext);
+    setIsXTurn(!isXTurn);
   }
 
-  const winner = calculateWinner(board);
-  const status = winner 
-    ? `🎉 Winner: ${winner}` 
-    : `Next Player: ${isXNext ? "X" : "O"}`;
+  const winner = findWinner(board);
+  let status;
+  if (winner) {
+    status = "Winner: " + winner;
+  } else {
+    status = "Next player: " + (isXTurn ? "X" : "O");
+  }
 
   return (
     <>
-      <h2 className="status">{status}</h2>
-      <div className="board">
-        {[0, 3, 6].map((row) => (
-          <div key={row} className="board-row">
-            {[0, 1, 2].map((col) => {
-              const index = row + col;
-              return (
-                <Square 
-                  key={index} 
-                  value={board[index]} 
-                  onClick={() => handleClick(index)} 
-                />
-              );
-            })}
-          </div>
-        ))}
+      <div className="status">{status}</div>
+      <div className="board-row">
+        <Square value={board[0]} onSquareClick={() => handleClick(0)} />
+        <Square value={board[1]} onSquareClick={() => handleClick(1)} />
+        <Square value={board[2]} onSquareClick={() => handleClick(2)} />
+      </div>
+      <div className="board-row">
+        <Square value={board[3]} onSquareClick={() => handleClick(3)} />
+        <Square value={board[4]} onSquareClick={() => handleClick(4)} />
+        <Square value={board[5]} onSquareClick={() => handleClick(5)} />
+      </div>
+      <div className="board-row">
+        <Square value={board[6]} onSquareClick={() => handleClick(6)} />
+        <Square value={board[7]} onSquareClick={() => handleClick(7)} />
+        <Square value={board[8]} onSquareClick={() => handleClick(8)} />
       </div>
     </>
   );
